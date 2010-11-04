@@ -4,7 +4,7 @@
 
 (defn draw-scaled-histogram
   [gc histogram maximum bounds]
-  (if (and gc histogram maximum bounds)
+  (if (and histogram maximum)
     (let [image-width (. bounds width)
 	  image-height (. bounds height)
 	  hist-size (count histogram)
@@ -23,5 +23,6 @@
 	      (.drawLine x 0 x (dec border))
 	      (.setForeground black)
 	      (.drawLine x image-height x border)))
-	  (recur (+ i step) (inc x)))))))
+	  (recur (+ i step) (inc x)))))
+    (.fillRectangle gc 0 0 (.width bounds) (.height bounds))))
   

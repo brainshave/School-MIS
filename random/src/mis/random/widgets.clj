@@ -45,7 +45,7 @@
 			 max (.getSelection max-spinner)]
 		     (.setEnabled restart-button false)
 		     (props/doprops progress-bar
-				    :maximum n
+				    :maximum (- n 2000)
 				    :selection 0)
 		     (swap! generator/*histogram-settings*
 			    #(assoc %

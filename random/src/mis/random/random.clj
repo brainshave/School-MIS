@@ -7,7 +7,6 @@
   ([watched-shell]
      (loop [] (let [display (Display/getDefault)]
 		(try
-		  (println "Dispatch!")
 		  (if-not (.readAndDispatch display)
 		    (.sleep display))
 		  (catch Exception e (.printStackTrace e)))
