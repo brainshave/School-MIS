@@ -1,5 +1,0 @@
-(ns mis.random.core
-  (:gen-class))
-
-(defn -main [& _]
-  (println "Yellow World!"))
