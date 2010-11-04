@@ -1,0 +1,6 @@
+Programs for Modelling and Simulation Course.
+
+* random
+Java's pseudo-random number generator analyzer. Written in
+Clojure. Depends on SWT. You have to manually put right version of SWT
+for your system in lib.
