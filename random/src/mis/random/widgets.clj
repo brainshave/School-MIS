@@ -30,7 +30,7 @@
 				:selection %2
 				:layout-data "wrap")
 		[n-spinner max-spinner]
-		[3000000 100]))
+		[30000 1000]))
     (props/doprops progress-bar
 		   :minimum 0
 		   :selection 0
@@ -72,11 +72,21 @@
 					       SWT/H_SCROLL]))]
     (props/doprops canvas
 		   :+paint.paint-control
-		   (doto (.. event gc)
-		     (.setBackground (Color. (Display/getDefault) 40 40 40))
-		     (.fillRectangle 0 0
-				     (.. canvas getBounds width)
-				     (.. canvas getBounds height))))))
+		   (image/draw-detail-histogram
+		    (.. event gc)
+		    @generator/*histogram*
+		    (:n @generator/*histogram-settings*)
+		    (.getBounds canvas)
+		    0))
+    
+    (add-watch generator/*histogram* :redraw-detailhistogram
+	       (fn [& _] (swt-async #(.redraw canvas))))
+    canvas))
+		   ;; (doto (.. event gc)
+		   ;;   (.setBackground (Color. (Display/getDefault) 40 40 40))
+		   ;;   (.fillRectangle 0 0
+		   ;; 		     (.. canvas getBounds width)
+		   ;; 		     (.. canvas getBounds height))))))
 
   
 (defn open-shell
