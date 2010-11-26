@@ -1,5 +1,7 @@
 (defproject random "1.0.0-SNAPSHOT"
-  :description "FIXME: write"
+  :description "Random number generator analyze"
+  :main random
+  ;;:aot ["random]
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
 		 [little-gui-helper "0.1.0-SNAPSHOT"]

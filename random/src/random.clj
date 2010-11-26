@@ -3,7 +3,8 @@
   (:use (little-gui-helper properties)
 	(incanter core stats charts))
   (:import (javax.swing JFrame JPanel JLabel JButton
-			JSpinner SpinnerNumberModel)
+			JSpinner SpinnerNumberModel
+			WindowConstants)
 	   (java.awt.event ActionListener)
 	   (net.miginfocom.swing MigLayout)))
 
@@ -30,7 +31,7 @@
 	tests-label (JLabel. "Ilość testów") 
 	scope-label (JLabel. "Maksymalna liczba")
 	tests-spinner (JSpinner. (SpinnerNumberModel. 10001 1 Integer/MAX_VALUE 5000))
-	scope-spinner (JSpinner. (SpinnerNumberModel. 1002 2 Integer/MAX_VALUE 100))
+	scope-spinner (JSpinner. (SpinnerNumberModel. 1001 1 Integer/MAX_VALUE 100))
 	start-button (JButton. "Pokaż wykres")]
     (doprops frame
 	     :title "Badanie właściwości liczb losowych / Szymon Witamborski"
@@ -39,10 +40,10 @@
     (doprops start-button +action.action-performed
 	     (let [tests (.getValue tests-spinner)
 		   scope (.getValue scope-spinner)]
-	       (view (histogram (repeatedly tests #(rand-int scope))
+	       (view (histogram (repeatedly tests #(rand-int (inc scope)))
 				:nbins scope
 				:title (format "Wykres %d liczb od 0 do %d"
-					       tests (dec scope))
+					       tests scope)
 				:y-label "Ilość wystąpień"
 				:x-label "Wartość"))))
     (doseq [x [tests-label tests-spinner
@@ -51,10 +52,12 @@
       (.add frame x))
     (doprops layout 
 	     :component-constraints ^unroll (start-button "span, grow"))
-    (doprops frame :visible true)))
+    (doprops frame :visible true)
+    frame))
 	   
 
 (defn -main [& args]
   (set-laf "Nimbus")
-  (-open-frame))
+  (doprops (-open-frame)
+	   :default-close-operation WindowConstants/EXIT_ON_CLOSE))
 	
