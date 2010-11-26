@@ -15,6 +15,11 @@
 		  (recur)))))
   ([] (swt-loop nil)))
 
+(def *loop-thread* (atom nil))
+
+(defn loop-background []
+  (reset! *loop-thread* (doto (Thread. swt-loop)
+			  (.start))))
 
 (defn start-async [& args]
   (println "Async")
