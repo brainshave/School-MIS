@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from visual import *
 from visual.graph import *
-from math import sqrt
+from math import sqrt, cos
 
 scene.range = 5
 scene.height = 700
@@ -19,6 +19,9 @@ m = 1.0 # masa [kg]
 mfac = 0.1 # przelicznik siły na długość wektora na ekranie
 v = 0 # prędkość chwilowa
 a = 0 # amplituda
+k = 0 # współczynnik K
+L = 0 # długość linki
+theta = 0 # aktualne wychylenie
 w = 0 # prędkość kątowa
 x = 0 # aktualna pozycja
 term = 0 # okres
@@ -53,10 +56,15 @@ epcurve = None
 
 
 def recalc ():
-    global a, w, term, t, tdelta, fcurve, scurve, forces, xvgraph, xcurve, vcurve, ekcurve, epcurve
-    w = 1.0 / sqrt(redarm.axis.mag / g)
+    global a, w, term, t, tdelta, fcurve, scurve, forces, xvgraph, xcurve, vcurve, ekcurve, epcurve, L, k, theta
+    L = redarm.axis.mag
+    theta = diff_angle((0,-1,0), redarm.axis)
+    a = sin(theta) * L
+    #w = 1.0 / sqrt(redarm.axis.mag / g)
+    w = sqrt(g / L)
     term = 2.0 * pi / w
-    a = diff_angle(redarm.axis, (0,-1,0))
+    #a = diff_angle(redarm.axis, (0,-1,0))
+    
     ball.pos = redball.pos
     arm.axis = redarm.axis
     tdelta = 0.5 * pi / w
@@ -108,9 +116,10 @@ while True:
             greyarm.axis.x = - redarm.axis.x
             
     # Ruch samodzielny:
-    x = a*sin((t - tdelta)*w)
+    #x = a*sin((t - tdelta)*w)
+    theta = diff_angle((0,-1,0), arm.axis)
     #v = a * w * cos(2*w*(t-tdelta) + diff_angle((0,-1,0), redarm.axis))
-    v = a * w * cos(w * (t - tdelta))
+    v = a * w * cos(w * (t - tdelta) + theta)
     
     arm.axis = rotate(vector(0,-1,0) * arm.axis.mag, x, (0,0,1))
     ball.pos = arm.pos + arm.axis
@@ -124,7 +133,9 @@ while True:
     
     if a != 0 and t < 11:
         ek = 0.5 * m * v * v
-        ep = 0.5 * x * x * (f.axis.mag2 / (a * mfac))
+        h = arm.axis.mag * (1 - cos(diff_angle((0,-1,0), arm.axis)))
+        #ep = 0.5 * x * x * (f.axis.mag2 / (a * mfac))
+        ep = m * g * h
         #fcurve.plot(pos = (t, (f.axis.mag / mfac)))
         #scurve.plot(pos = (t, (s.axis.mag / mfac)))
         xcurve.plot(pos = (t, x))
