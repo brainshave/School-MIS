@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# Szymon Witamborski
 from visual import *
 from visual.graph import *
 from math import sqrt, cos, sin, asin
@@ -23,6 +24,7 @@ Angle = 0 # początkowe wychylenie
 w = 0 # prędkość kątowa
 k = 0 # współczynnik
 T = 0 # okres
+tstart = 0 # czas startu, uzywany tylko do przesuniecia wykresow, by zaczynaly sie od zera
 
 # parametry zmieniające się w czasie
 t = 0 # aktualny czas
@@ -55,6 +57,12 @@ mass_scale = cylinder (pos = (-1.3, -4.7, 0), axis = (4, 0, 0), color = (0.5, 0.
 mass_ball = sphere (pos = mass_scale.pos + (0.1 * mass_scale.axis), radius = 0.1, color = (0.5, 0.5, 0.6))
 mass_label = label (pos = (-2.35, -4.7, 0), text = "masa: 1.0kg")
 
+# wyświetlanie różnych mniej lub bardziej stałych wartości:
+w_label = label (pos = (mass_label.pos + (0,0.5,0)), text = "w: 0rad/s")
+T_label = label (pos = (w_label.pos + (0,0.5,0)), text = "T: 0s")
+L_label = label (pos = (T_label.pos + (0,0.5,0)), text = "L: 4m")
+A_label = label (pos = (L_label.pos + (0,0.5,0)), text = "A: 0m")
+
 #### WYKRES
 graph_display = None
 vgraph = None
@@ -63,6 +71,7 @@ epgraph = None
 ekgraph = None
 
 def restart_graphs():
+    global t
     global graph_display, vgraph, epgraph, ekgraph, xgraph
     if graph_display:
         graph_display.display.visible = False
@@ -76,16 +85,21 @@ def restart_graphs():
     epgraph = gcurve (display = graph_display, color = (1,0,1), dot = True) # magenta
 
 def restart():
-    global A, w, k, T, t, Angle
+    global A, w, k, T, t, Angle, tstart
     global m, L, g
     L = redarm.axis.mag
+    L_label.text = "L: %.2fm" % L
     Angle = diff_angle ( (0,-1,0), redarm.axis )
+    #print "Angle ", Angle
     w = sqrt (g / L)
-    A = sin (angle) * L
+    w_label.text = "w: %.2frad/s" % w
+    A = sin (Angle) * L
+    A_label.text = "A: %.2fm" % A
     T = 2 * pi * sqrt (L / g)
-    t = 0
-    #t = 0.25 * T
-    #if redarm.axis.x < 0 : t = -t
+    T_label.text = "T: %.2fs" % T
+    tstart = 0.25 * T
+    if redarm.axis.x < 0 : tstart = -tstart
+    t = tstart
     restart_graphs()
 
 def actual():
@@ -109,9 +123,9 @@ def actual():
     arm.axis = rotate((0,-L,0), angle, (0,0,1))
     ball.pos = arm.pos + arm.axis
     # wykresy
-    if t < 11:
+    if t - tstart < 11:
         for graph, value in [(vgraph, v), (xgraph, x), (ekgraph, ek), (epgraph, ep)]:
-            if graph: graph.plot(pos = (t, value))
+            if graph: graph.plot(pos = (t - tstart, value))
     # siły
     for arr in [farrow, sarrow, mgarrow]: arr.pos = ball.pos
     mgarrow.axis = (0, - m * g * mfac, 0)
@@ -148,9 +162,9 @@ while True:
             greyarm.axis = redarm.axis
             greyarm.axis.x = - redarm.axis.x
     elif pick == mass_ball:
-        new_pos = scene.mouse.pos #scene.mouse.project(normal=(0,0,1))
+        new_pos = scene.mouse.pos
         if new_pos != drag_pos:
-            pick.pos += (new_pos.x - drag_pos.x, 0, 0)
+            pick.pos.x = new_pos.x
             if pick.pos.x < mass_scale.pos.x: pick.pos.x = mass_scale.pos.x
             if pick.pos.x > (mass_scale.pos + mass_scale.axis).x :
                 pick.pos = mass_scale.pos + mass_scale.axis
