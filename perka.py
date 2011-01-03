@@ -49,10 +49,6 @@ def colorize (p):
 
 pipes = []
 
-def pipe (one, two):
-    two.color = one.color
-    return box (color = one.color, pos = (one.pos + two.pos)/2,
-                axis = (two.pos - one.pos)/2, width=0.05, height=0.05)
 #pipe(balls_flat[0], balls_flat[1])
 
 colors = [(r / 256.0 ,g / 256.0, b / 256.0)
@@ -61,25 +57,33 @@ colors = [(r / 256.0 ,g / 256.0, b / 256.0)
           for b in range(64, 256, 32)]
 shuffle(colors)
 
-# przerobic na przeszukiwanie drzewa i kolorowanie grafu
-# z ustawianiem krawedzi
+
+def pipe (one, two):
+    pipes.append(box (color = one.color, pos = (one.pos + two.pos)/2,
+                      axis = (two.pos - one.pos)/2, width=0.05, height=0.05))
+    return two
+
+def color_neighbors (ball, c):
+    if ball.color == color.white:
+        ball.color = c
+        map(lambda b: color_neighbors(b,c),
+            map(lambda b: pipe(ball,b),
+                filter(lambda b: b.color != grey,
+                       map(lambda (x,y,z): balls[x][y][z],
+                           filter(lambda (x,y,z): x >= 0 and y >= 0 and z >=0
+                                  and x < xsize and y < ysize and z < zsize,
+                                  map(lambda (x,y,z): (int(x), int(y), int(z)),
+                                      [ball.pos - v
+                                       for v in [(1,0,0), (0,1,0), (0,0,1),
+                                                 (-1,0,0), (0,-1,0), (0,0,-1)]]))))))
+
 def clusters ():
     for p in pipes: p.visible = False
     del pipes[:]
     for ball in conductors():
-        if ball.color == color.white: ball.color = colors.pop()
-        map(lambda b: pipes.append(pipe(ball,b)),
-            filter(lambda b: b.color != grey,
-                   map(lambda (x,y,z): balls[x][y][z],
-                       filter(lambda (x,y,z): x >= 0 and y >= 0 and z >=0
-                              and x < xsize and y < ysize and z < zsize,
-                              map(lambda (x,y,z): (int(x), int(y), int(z)),
-                                  [ball.pos - v
-                                   for v in [(1,0,0), (0,1,0), (0,0,1),
-                                             (-1,0,0), (0,-1,0), (0,0,-1)]])))))
-            
+        color_neighbors(ball, colors.pop())
 
-colorize(0.5)
+colorize(0.4)
 clusters()
 #colorize(0.1)
 #clusters()
