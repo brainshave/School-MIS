@@ -14,8 +14,7 @@ xstart = xsize / 2.0 - 0.5
 ystart = ysize / 2.0 - 0.5
 zstart = zsize / 2.0 - 0.5
 scene.center = (xstart, ystart, zstart)
-grey = (0.5, 0.5, 0.5)
-white = (1,1,1)
+grey = (0.25, 0.25, 0.25)
 balls = [[[box (pos = (x, y, z),
                 opacity = 1,
                 width=0.5, height = 0.5, length=0.5,
@@ -42,7 +41,7 @@ def colorize (p):
     if to_colorize > 0:
         random.shuffle(uncolorized)
         for ball in uncolorized[:to_colorize]:
-            ball.color = white
+            ball.color = color.white
     elif to_colorize < 0:
         random.shuffle(colorized)
         for ball in colorized[:-to_colorize]:
@@ -51,13 +50,24 @@ def colorize (p):
 pipes = []
 
 def pipe (one, two):
+    two.color = one.color
     return box (color = one.color, pos = (one.pos + two.pos)/2,
                 axis = (two.pos - one.pos)/2, width=0.05, height=0.05)
 #pipe(balls_flat[0], balls_flat[1])
 
+colors = [(r / 256.0 ,g / 256.0, b / 256.0)
+          for r in range(64, 256, 32)
+          for g in range(64, 256, 32)
+          for b in range(64, 256, 32)]
+shuffle(colors)
+
+# przerobic na przeszukiwanie drzewa i kolorowanie grafu
+# z ustawianiem krawedzi
 def clusters ():
+    for p in pipes: p.visible = False
     del pipes[:]
     for ball in conductors():
+        if ball.color == color.white: ball.color = colors.pop()
         map(lambda b: pipes.append(pipe(ball,b)),
             filter(lambda b: b.color != grey,
                    map(lambda (x,y,z): balls[x][y][z],
@@ -71,3 +81,5 @@ def clusters ():
 
 colorize(0.5)
 clusters()
+#colorize(0.1)
+#clusters()
