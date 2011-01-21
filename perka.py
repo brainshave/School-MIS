@@ -9,7 +9,6 @@ from random import shuffle, randint
 xsize = 5
 ysize = 5
 zsize = 3
-p = 0.5
 
 size = xsize * ysize * zsize
 
@@ -58,8 +57,8 @@ pipes = []
 #pipe(balls_flat[0], balls_flat[1])
 
 colors = [(r / 256.0 ,g / 256.0, b / 256.0)
-          for r in range(96, 256, 12)
-          for g in range(96, 256, 12)
+          for r in range(94, 256, 12)
+          for g in range(95, 256, 12)
           for b in range(96, 256, 12)]
 shuffle(colors)
 
@@ -98,7 +97,6 @@ def color_random_one():
                 c = other.color
                 color_neighbors(a, c)
                 break
-    #color_neighbors(a, c)
     colors.insert(0,c)
 
 def clusters ():
@@ -120,6 +118,7 @@ def percolation ():
                         and b1.color == b2.color):
                         return True
     return False
+
 while True:
     for a in range(int(size)):
         color_random_one()
@@ -128,12 +127,6 @@ while True:
             break
         else:
             rate(20)
-    # for a in range(int(size/2)):
-    #     rate(30)
-    #     color_random_one()
-    # rate(1)
     for ball in balls_flat:
         ball.color = grey
 
-#colorize(p)
-#clusters()
